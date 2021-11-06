@@ -1,0 +1,5 @@
+tooltip: >-
+  Select folder and type of "Sheets" files export from Revit
+
+  This script will rename all files in selected folder except Sheet Number, Sheet Name
+title: Rename Files
