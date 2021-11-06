@@ -1,0 +1,5 @@
+tooltip: >-
+  Text the Project Code and Project Stage
+
+  and this script will set that information to selected sheets
+title: Set Project Data To Selected Sheets

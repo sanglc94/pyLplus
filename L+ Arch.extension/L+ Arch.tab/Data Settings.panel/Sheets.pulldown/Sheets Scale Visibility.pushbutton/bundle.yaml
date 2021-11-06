@@ -1,0 +1,5 @@
+tooltip: >-
+  If Scale parameter value is "As indicated"
+
+  this script will hide Scale label on TitleBlocks
+title: Sheets Scale Visibility
