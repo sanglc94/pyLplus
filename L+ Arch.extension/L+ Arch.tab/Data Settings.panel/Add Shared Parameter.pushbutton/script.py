@@ -71,11 +71,13 @@ try:
         # form select from list
         myExtDef = forms.SelectFromList.show(dicta, title = "Select Shared Parameters", multiselect=True, button_name='Select')
         if myExtDef != None:
+            # get group name from selected item
             for b in dicta:
                 for a in myExtDef:
                     if a in dicta[b]:
                         groupName = b
             myGroup = myGroups.get_Item(groupName)
+            # get all Definitions in this group
             if (myGroup != None):
                 ExtDef = myGroup.Definitions   
             for el in listEle:
