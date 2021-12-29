@@ -38,17 +38,6 @@ class FamilyOption(IFamilyLoadOptions):
         overwriteParameterValues = False
         return True
 
-# Select Shared Parameter Group "Indentity Data" and Parameters // myExtDef = myGroup.Definitions.get_Item("Name of Parameter")
-file = app.OpenSharedParameterFile()
-myGroups = file.Groups
-
-    
-# create a dict Name of Groups, Shared Parameters
-dicta={}
-for a in myGroups:
-    dicta[a.Name] = [b.Name for b in a.Definitions]
-
-
 # Main Code       
 try:
     # Select Elements
@@ -67,45 +56,38 @@ try:
                 famName.append(nFamName)
                 listEle.Add(nel)
 
+        for el in listEle:
+        # Get Family from Element
+            fam = el.Symbol.Family
 
-        # form select from list
-        myExtDef = forms.SelectFromList.show(dicta, title = "Select Shared Parameters", multiselect=True, button_name='Select')
-        if myExtDef != None:
-            # get group name from selected item
-            for b in dicta:
-                for a in myExtDef:
-                    if a in dicta[b]:
-                        groupName = b
-            myGroup = myGroups.get_Item(groupName)
-            # get all Definitions in this group
-            if (myGroup != None):
-                ExtDef = myGroup.Definitions   
-            for el in listEle:
-            # Get Family from Element
-                fam = el.Symbol.Family
+            # Edit Family 
+            docfamily = doc.EditFamily(fam)
+            if None != docfamily and docfamily.IsFamilyDocument == True:
+                familyManager = docfamily.FamilyManager
 
-                # Edit Family 
-                docfamily = doc.EditFamily(fam)
-                if None != docfamily and docfamily.IsFamilyDocument == True:
-                    familyManager = docfamily.FamilyManager
-
-                    # filter definition (shared parameters) available in the family 
-                    famParam = familyManager.GetParameters()    # get family parameter
-                    famDefName = []
-                    for f in famParam:
+                # filter definition (shared parameters) available in the family 
+                famParam = familyManager.GetParameters()    # get family parameter
+                famDefName = []
+                for f in famParam:
+                    if f.IsShared:
                         famDefName.append(f.Definition.Name)    # create a list of parameters available in the family 
-                    trans = Transaction(docfamily, "Add Parameters")
-                    trans.Start()
-                    for e in ExtDef:
-                        if e.Name in myExtDef and e.Name not in famDefName:
+                
+                # Select Shared Parameters already added in this Family
+                selectedDef = forms.SelectFromList.show(famDefName, title = "Select Parameters", multiselect=True, button_name='Select')
 
-                        # Add Parameter
-                            fp = familyManager.AddParameter(e,BuiltInParameterGroup.PG_DATA, False)
+                trans = Transaction(docfamily, "Remove Parameters")
+                trans.Start()
+                if selectedDef:
+                    for e in famParam:
+                        if e.Definition.Name in selectedDef:
+
+                            # Remove Parameters
+                            familyManager.RemoveParameter(e)
                         
                     # Reload Family
                     docfamily.LoadFamily(doc,FamilyOption())
-                    
-                    trans.Commit()
-                docfamily.Close(False)
+                
+                trans.Commit()
+            docfamily.Close(False)
 except:
     forms.alert('Cancelled')
