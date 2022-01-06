@@ -65,48 +65,48 @@ if result:
 
 
 
-gSettings = OverrideGraphicSettings()
-activeview = doc.ActiveView
-# select sheet with sheet number key
-viewsheet_select = []
-for viewsheet in viewsheet_col:
-    if viewsheet.Id == activeview.Id:
-        viewsheet_select.append(viewsheet)
+    gSettings = OverrideGraphicSettings()
+    activeview = doc.ActiveView
+    # select sheet with sheet number key
+    viewsheet_select = []
+    for viewsheet in viewsheet_col:
+        if viewsheet.Id == activeview.Id:
+            viewsheet_select.append(viewsheet)
 
-viewsheetid =  [viewsheet.Id for viewsheet in viewsheet_select]
-#print(viewsheetid)
+    viewsheetid =  [viewsheet.Id for viewsheet in viewsheet_select]
+    #print(viewsheetid)
 
-for viewport in viewport_col:
-#    print(viewport.OwnerViewId)
-    #for a in viewsheet_select:
-        if viewport.OwnerViewId in viewsheetid:
-            viewid = viewport.ViewId
-            view = doc.GetElement(viewid)
-            viewtypeid = view.GetTypeId()
-            viewtype = doc.GetElement(viewtypeid)
-            viewFamilyName = viewtype.FamilyName.ToString()
-            if viewFamilyName != "Drafting View":
-                tGroup = TransactionGroup(doc, "Temp to find crop box element")
-                tGroup.Start()
-                t1 = Transaction(doc,"Select CropBoundary")
-                t1.Start()
-                view.CropBoxVisible = False
-                t1.Commit()
-            
-                shownElems = FilteredElementCollector(doc, view.Id).ToElementIds()
-                t1.Start()
-                view.CropBoxVisible = True
-                t1.Commit()
-                cropBoxElement = FilteredElementCollector(doc, view.Id).Excluding(shownElems).FirstElement()
-                tGroup.RollBack()
-                if cropBoxElement != None:
-                    cropid = cropBoxElement.Id
-                    t = Transaction(doc, "Override Graphic Settings")
-                    t.Start()
-                    view.SetElementOverrides(cropid,gSettings.SetProjectionLinePatternId(linepatId))
-                    view.SetElementOverrides(cropid,gSettings.SetProjectionLineWeight(linewei))
-                    view.SetElementOverrides(cropid,gSettings.SetProjectionLineColor(linecolor))
-                    t.Commit()
+    for viewport in viewport_col:
+    #    print(viewport.OwnerViewId)
+        #for a in viewsheet_select:
+            if viewport.OwnerViewId in viewsheetid:
+                viewid = viewport.ViewId
+                view = doc.GetElement(viewid)
+                viewtypeid = view.GetTypeId()
+                viewtype = doc.GetElement(viewtypeid)
+                viewFamilyName = viewtype.FamilyName.ToString()
+                if viewFamilyName != "Drafting View":
+                    tGroup = TransactionGroup(doc, "Temp to find crop box element")
+                    tGroup.Start()
+                    t1 = Transaction(doc,"Select CropBoundary")
+                    t1.Start()
+                    view.CropBoxVisible = False
+                    t1.Commit()
+                
+                    shownElems = FilteredElementCollector(doc, view.Id).ToElementIds()
+                    t1.Start()
+                    view.CropBoxVisible = True
+                    t1.Commit()
+                    cropBoxElement = FilteredElementCollector(doc, view.Id).Excluding(shownElems).FirstElement()
+                    tGroup.RollBack()
+                    if cropBoxElement != None:
+                        cropid = cropBoxElement.Id
+                        t = Transaction(doc, "Override Graphic Settings")
+                        t.Start()
+                        view.SetElementOverrides(cropid,gSettings.SetProjectionLinePatternId(linepatId))
+                        view.SetElementOverrides(cropid,gSettings.SetProjectionLineWeight(linewei))
+                        view.SetElementOverrides(cropid,gSettings.SetProjectionLineColor(linecolor))
+                        t.Commit()
 
 
 
